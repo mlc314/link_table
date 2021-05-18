@@ -1,0 +1,26 @@
+Package: lt
+Title: Link Table
+Version: 0.0.0.1
+Authors@R: c(
+	person("Tim", "Whitson", email = "twhitson@uw.edu", role = c("aut")),
+	person("Michael", "Collison", email = "mlc314@uw.edu", role = c("cre")),
+	person("Mike", "Richards", email = "miker985@uw.edu", role = c("cre")))
+Description: Functions for generating link table in distributed environment.
+Depends:
+    R (>= 3.5.0)
+Imports:
+    R6,
+    raster,
+    rgeos,
+    sf,    
+    spex,
+    testthat,
+    data.table
+LinkingTo: Rcpp
+License: BSD
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.0
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

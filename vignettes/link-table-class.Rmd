@@ -1,0 +1,94 @@
+---
+title: "Link Table Class Overview"
+author: "Tim Whitson"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 5
+)
+
+library(lt)
+library(raster)
+```
+
+The _LinkTable_ class is designed to improve workflow surrounding the link table, such as rasterization and masking.
+
+To load a link table object you need one of the following:
+
+- A link table version: `LinkTable$from_version()`
+- A link table and id raster file: `LinkTable$from_file()`
+- A link table and id raster object: `LinkTable$new()`
+
+Using version is the simplest so we will start there:
+
+```{r}
+lto <- LinkTable$from_version('future')
+```
+
+Now the link table object is loaded:
+
+```{r}
+lto
+```
+
+The LinkTable object supports most `data.table` bracket operations:
+
+```{r}
+lto[NAME_0 == 'Mali' & n > 0]
+```
+
+## Rasterizing
+
+You can rasterize the link table easily using the `to_raster()` function:
+
+```{r}
+lto$to_raster()
+
+plot(lto$to_raster())
+
+plot(lto[NAME_0 == 'Mali']$to_raster(field = 'ADM2_CODE'))
+```
+
+## Masking
+
+The LinkTable objects provides a simple masking function `to_mask()`:
+
+```{r}
+
+lto$to_mask()
+
+plot(lto$to_mask())
+```
+
+Let's try a more complex example where we mask Russia, China, and Brazil out of the world raster using only the link table:
+
+```{r}
+plot(raster::mask(lto$to_raster(trim_result = FALSE), 
+                  lto[NAME_0 == 'Russia' | NAME_0 == 'China' | NAME_0 == 'Brazil']$to_mask(), 
+                  inverse = TRUE))
+```
+
+## Verifying Raster Coverage
+
+You can also use the LinkTable class to compare a raster with the link table and see if there are any extra or missing pixels. Let's test out a raster with Mali by removing a pixel and adding an extra:
+
+```{r}
+mali_raster <- lto[NAME_0 == 'Mali']$to_raster()
+
+first <- which(!is.na(mali_raster[]))[1]
+first_na <- which(is.na(mali_raster[]))[1]
+mali_raster[first] <- NA
+mali_raster[first_na] <- 1
+
+lto[NAME_0 == 'Mali']$verify_raster_coverage(mali_raster)
+```
